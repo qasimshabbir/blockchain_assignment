@@ -5,7 +5,9 @@ Repository is created to  understand basics of Solidity
 - The import Statement
 - Contracts
 - Mappings
-- Events etc.
+- Events 
+- ICO 
+- Crowdsale etc.
 
 
 # Learn Solidity
