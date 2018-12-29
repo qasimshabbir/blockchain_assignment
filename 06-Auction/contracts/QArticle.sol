@@ -2,6 +2,86 @@ pragma solidity ^0.5.0;
 
 import "./SafeMath.sol";
 import "./Address.sol";
+// File: contracts/lib/openzeppelin-solidity/contracts/access/Roles.sol
+
+/**
+ * @title Roles
+ * @dev Library for managing addresses assigned to a Role.
+ */
+library Roles {
+  struct Role {
+    mapping (address => bool) bearer;
+  }
+
+  /**
+   * @dev give an account access to this role
+   */
+  function add(Role storage role, address account) internal {
+    require(account != address(0));
+    role.bearer[account] = true;
+  }
+
+  /**
+   * @dev remove an account's access to this role
+   */
+  function remove(Role storage role, address account) internal {
+    require(account != address(0));
+    role.bearer[account] = false;
+  }
+
+  /**
+   * @dev check if an account has this role
+   * @return bool
+   */
+  function has(Role storage role, address account)
+    internal
+    view
+    returns (bool)
+  {
+    require(account != address(0));
+    return role.bearer[account];
+  }
+}
+
+// File: contracts/lib/openzeppelin-solidity/contracts/access/roles/MinterRole.sol
+
+contract MinterRole {
+  using Roles for Roles.Role;
+
+  event MinterAdded(address indexed account);
+  event MinterRemoved(address indexed account);
+
+  Roles.Role private minters;
+
+  constructor() public {
+    minters.add(msg.sender);
+  }
+
+  modifier onlyMinter() {
+    require(isMinter(msg.sender));
+    _;
+  }
+
+  function isMinter(address account) public view returns (bool) {
+    return minters.has(account);
+  }
+
+  function addMinter(address account) public onlyMinter {
+    minters.add(account);
+    emit MinterAdded(account);
+  }
+
+  function renounceMinter() public {
+    minters.remove(msg.sender);
+  }
+
+  function _removeMinter(address account) internal {
+    minters.remove(account);
+    emit MinterRemoved(account);
+  }
+}
+
+
 // File: contracts/lib/openzeppelin-solidity/contracts/introspection/IERC165.sol
 
 /**
@@ -817,82 +897,12 @@ contract ERC721Mintable is ERC721Full, MinterRole {
   }
 }
 
-
-contract QProperty is ERC721Mintable, ERC721Pausable {
-    struct{
-
-    }    
-    constructor (string _name, string _symbol,address _CFO) ERC721Full(_name, _symbol)
+contract QArticle is ERC721Mintable {
+      
+    constructor (string _name, string _symbol) ERC721Full(_name, _symbol)
     public 
     {
-        ceo.add(msg.sender);
-        //CEO can transer any token
+        //Owner has approval to transfer any token
         setApprovalForAll(msg.sender,true);
-        cfo.add(_CFO);
-        addPauser(_CFO);
-        //totalSupply = _totalsupply;
     }
-    
-
-    function transferFromNGO(
-        address from,
-        address to,
-        uint256 tokenId,
-        string _tokenURIs
-    )
-    public
-    whenNotPaused
-    onlyNGO
-    {
-        require(usr.has(to) || csr.has(to),"Transfer only to USR or CSR Role");
-        super.transferFrom(from, to, tokenId);
-        _setTokenURI(tokenId,_tokenURIs);
-    }
-    
-    function transferFromUSR(
-        address from,
-        address to,
-        uint256 tokenId,
-        string _tokenURIs
-    )
-    public
-    whenNotPaused
-    onlyUSR
-    {
-        require(ngo.has(to) || csr.has(to),"Transfer only to NGO or CSR Role");
-        super.transferFrom(from, to, tokenId);
-        _setTokenURI(tokenId,_tokenURIs);
-    }
-
-    function transferFromCSR(
-        address from,
-        address to,
-        uint256 tokenId,
-        string _tokenURIs
-    )
-    public
-    whenNotPaused
-    onlyCSR
-    {
-        require(ngo.has(to) || usr.has(to),"Transfer only to NGO or USR Role");
-        super.transferFrom(from, to, tokenId);
-        _setTokenURI(tokenId,_tokenURIs);
-    }
-
-    //only CEO can call this.
-    function transferFrom(
-        address from,
-        address to,
-        uint256 tokenId,
-        string _tokenURIs
-    )
-    public
-    whenNotPaused
-    onlyCEO
-    {
-        super.transferFrom(from, to, tokenId);
-        _setTokenURI(tokenId,_tokenURIs);
-    }
-
-    
 }

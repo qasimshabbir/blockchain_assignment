@@ -13,19 +13,19 @@ import "./ERC721MetadataMintable.sol";
  */
 contract HeartToken is ERC721MetadataMintable, ERC721Pausable, ERC721Enumerable, ERC721Burnable {
     uint256 internal _totalSupply;
-    address internal _CEO;
-    address internal _CFO;
+    Roles.Role internal _CEO;
+    Roles.Role internal _CFO;
     
-    constructor (string name, string symbol,address _CFO) ERC721Metadata(name, symbol)
-        
+    constructor (string name, string symbol,address _CFO, uint256 _totalSupply) ERC721Metadata(name, symbol)
+      
         public 
     {
         //todo
         //It will assign owner to get approve all right.
         //Make owner the CEO, It will also take the company CFO
         //comapny CFO can pause
-        this._CFO = _CFO;
-        this._CEO = msg.sender;
+        this._CFO.add(_CFO);
+        this._CEO.add(msg.sender);
         setApprovalForAll(this._CEO, true);
         //cfo can pause un pause.. Add CFO as pauser
         addPauser(this._CFO);

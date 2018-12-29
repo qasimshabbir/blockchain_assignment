@@ -3,22 +3,24 @@ pragma solidity ^0.5.0;
 
 import "./SafeMath.sol";
 import "./Address.sol";
+import "./QAuction.sol";
+
 // interface of your Customize token ERC223
 interface QBidInterface {
     
-    uint public totalSupply;
+    uint256 internal _totalSupply;
     function balanceOf(address who) public view returns (uint);
   
-    function name() public view returns (string _name);
-    function symbol() public view returns (string _symbol);
-    function decimals() public view returns (uint8 _decimals);
-    function totalSupply() public view returns (uint256 _supply);
+    function name() external view returns (string memory _name);
+    function symbol() external view returns (string memory _symbol);
+    function decimals() external view returns (uint8 _decimals);
+    function totalSupply() external view returns (uint256 _supply);
 
     function transfer(address to, uint value) public returns (bool ok);
-    function transfer(address to, uint value, bytes data) public returns (bool ok);
-    function transfer(address to, uint value, bytes data, string custom_fallback) public returns (bool ok);
+    function transfer(address to, uint value, bytes memory data) public returns (bool ok);
+    function transfer(address to, uint value, bytes memory data, string memory custom_fallback) public returns (bool ok);
   
-    event Transfer(address indexed from, address indexed to, uint value, bytes indexed data);alue);
+    event Transfer(address indexed from, address indexed to, uint value, bytes indexed data);
 
 }
 
@@ -36,7 +38,7 @@ contract ContractReceiver {
     }
     
     
-    function tokenFallback(address _from, uint _value, bytes _data) public pure {
+    function tokenFallback(address _from, uint _value, bytes memory _data) public pure {
       TKN memory tkn;
       tkn.sender = _from;
       tkn.value = _value;
@@ -121,7 +123,7 @@ contract QBidToken is QBidInterface {
     // - Invoke the function tokenFallback (address, uint256, bytes) in _to, if _to is a contract.
     // ------------------------------------------------------------------------
     // Function that is called when a user or another contract wants to transfer funds .
-    function transfer(address _to, uint _value, bytes _data, string _custom_fallback) public returns (bool success) {
+    function transfer(address _to, uint _value, bytes memory _data, string memory _custom_fallback) public returns (bool success) {
         if(_to.isContract()) {
             if (balanceOf(msg.sender) < _value) revert();
             balances[msg.sender] = balances[msg.sender].sub(_value);
@@ -137,7 +139,7 @@ contract QBidToken is QBidInterface {
     
     
     // Function that is called when a user or another contract wants to transfer funds .
-    function transfer(address _to, uint _value, bytes _data) public returns (bool success) {
+    function transfer(address _to, uint _value, bytes memory _data) public returns (bool success) {
       
         if(_to.isContract()) {
             return transferToContract(_to, _value, _data);
@@ -165,7 +167,7 @@ contract QBidToken is QBidInterface {
 
    
     //function that is called when transaction target is an address
-    function transferToAddress(address _to, uint _value, bytes _data) private returns (bool success) {
+    function transferToAddress(address _to, uint _value, bytes memory _data) private returns (bool success) {
         if (balances[msg.sender] < _value) revert();
         balances[msg.sender] = balances[msg.sender].sub(_value);
         balances[_to] = balances[_to].add(_value);
@@ -174,12 +176,12 @@ contract QBidToken is QBidInterface {
     }
   
     //function that is called when transaction target is a contract
-    function transferToContract(address _to, uint _value, bytes _data) private returns (bool success) {
+    //Since our fallback was Auction our fallback is Bid. 
+    function transferToContract(address _to, uint _value, bytes memory _data) private returns (bool success) {
         if (balances[msg.sender] < _value) revert();
         balances[msg.sender] = balances[msg.sender].sub(_value);
         balances[_to] = balances[msg.sender].add(_value);
-        ContractReceiver receiver = ContractReceiver(_to);
-        receiver.tokenFallback(msg.sender, _value, _data);
+        QAuction(_to).bid(msg.sender, _value, _data);
         emit Transfer(msg.sender, _to, _value, _data);
         return true;
     }
