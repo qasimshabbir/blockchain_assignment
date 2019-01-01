@@ -29,7 +29,8 @@ interface QBidInterface {
  * Todo: Must be our auction Contract
  */
  
-contract ContractReceiver {
+contract QBidTokenReceiver {
+    QBidToken token public;
     struct TKN {
         address sender;
         uint value;

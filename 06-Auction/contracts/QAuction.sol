@@ -3,8 +3,9 @@ pragma solidity ^0.4.25;
 import "./SafeMath.sol";
 import "./Address.sol";
 import "./QBidToken.sol";
-
-contract QAuction {
+// QBid Token receiver is part of QbidToken. Its an interface.
+contract QAuction{
+  QBidToken public token;
   using SafeMath for uint256;
   using Address for address;
   
@@ -54,8 +55,16 @@ contract QAuction {
     require(!ended && !cancelled,"Auction is not active");
     _;
   }
-
+  /**
+    * @notice Constructor for contract. Sets token and beneficiary addresses.
+    * @param _token token address - supposed to be QBID address
+    * @param _seller recipient of received QBID Token
+    * @param _tokenId token id is identifier of item can be replaced with NFT or IPFS link. 
+    * @param _biddingTime Bidding time - duration of Auciton
+    * @param _bidIncrement Initial bid or minimum price.
+    */
   constructor(
+      address _token,
       uint256 _tokenId, 
        
       uint _biddingTime, 
@@ -65,6 +74,7 @@ contract QAuction {
     public 
   {
     //_auction.article = QArticle(_nftArticle);
+    token = QBidToken(QbidTokenAddress);
     tokenId = _tokenId;
     seller = _seller;
     endTime = block.timestamp + _biddingTime;
@@ -114,7 +124,7 @@ contract QAuction {
       // can call this function again as part of the receiving call
       // before `send` returns.
       pendingReturns[msg.sender] = 0;
-      if (!msg.sender.send(amount)) {
+      if (!token.transfer(msg.sender,amount)) {
         // No need to call throw here, just reset the amount owing
         pendingReturns[msg.sender] = amount;
         return false;
@@ -147,7 +157,7 @@ contract QAuction {
       emit AuctionEnded(highestBidder, highestBid);
 
       // 3. Interaction
-      seller.transfer(highestBid);
+      token.transfer(seller,highestBid);
   }
 
   function cancelAuction()
@@ -207,7 +217,15 @@ contract QAuctions{
     );
   }
   */
+  /*
+    * @param _token token address - supposed to be QBID address
+    * @param _seller recipient of received QBID Token
+    * @param _tokenId token id is identifier of item can be replaced with NFT or IPFS link. 
+    * @param _biddingTime Bidding time - duration of Auciton
+    * @param _bidIncrement Initial bid or minimum price.
+    */
   function createAuction(
+      address token,
       uint256 tokenId,
       uint256 bidIncrement, 
       uint256 biddingTime 
@@ -215,7 +233,7 @@ contract QAuctions{
     public
   { 
     //QArticle _nftArticle = QArticle(nftArticle);
-    QAuction auction =  new QAuction(tokenId, biddingTime, bidIncrement, msg.sender);
+    QAuction auction = new QAuction(token,tokenId, biddingTime, bidIncrement, msg.sender);
     lstAuctions.push(auction);
     
     emit AuctionCreated(
