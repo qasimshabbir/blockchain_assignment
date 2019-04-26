@@ -7,7 +7,8 @@ Repository is created to  understand basics of Solidity
 - Mappings
 - Events 
 - ICO 
-- Crowdsale etc.
+- Crowdsale 
+- StableCoin etc.
 
 
 # Learn Solidity
