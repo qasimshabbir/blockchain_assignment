@@ -1,0 +1,17 @@
+1) Token name (Eg. Q-Token
+2) Token symbol (Eg. QTC)
+3) Decimals (18 is standard)
+4) Token Total CAP (Total supply)
+5) Token to be reserved for owner? (yes / No)
+6) How many token to be reserved?
+7) For which asset you want to pegged with. (Eg. USD, Gold, Eth etc)
+8) Amount to pegged with value of a single token.
+
+1) Token name : GenTech
+2) Token symbol : Gtech
+3) Decimals (18 is standard) : 18
+4) Token Total CAP (Total supply) 1000000000
+5) Token to be reserved for owner? (yes / No) : Yes
+6) How many token to be reserved? 300000000
+7) For which asset you want to pegged with. (Eg. USD, Gold, Eth etc) : ETH
+8) Amount to pegged with value of a single token. 1USD

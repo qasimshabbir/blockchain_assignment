@@ -1,0 +1,27 @@
+Here is your stable coin.
+
+Mock Oracle deployed on Ropsten
+https://ropsten.etherscan.io/tx/0x8a77547fd4b105310d791902541502319fd19d5d08ceebcaa67e7ed803795d9b
+
+Here is your GenTech token.
+https://ropsten.etherscan.io/address/0x4125ec95d59a2d29c9314f113fe26d2b266db455
+
+In order to deploy with you as owner. Kindly follow the steps
+
+1) Open http://remix.ethereum.org
+2) Copy paste the attached contract
+3) First, deploy Mock Oracle contract
+4) Once deployed set price 15626 (in cents) whatever the current rates. Later you can build oracle to set up live rates
+5) Deploy the GenTech contract now.
+6) Use Mock Oracle contract address as a parameter to deploy.
+7) Flush with ethereum to get GenTech Token against ether.
+
+Here is the example to understand the functionality
+
+For Example
+1) A user deposits 1 Ether when the price of Ether is $140
+2) The price then falls to $ 70.
+3) If we have enough Ether in the contract we cover their losses and pay them back 2 ether (the same amount in USD).
+4) if we don't have enough money to pay them back we pay out proportionally to what we have left. In this case, they'd get back their original deposit of 1 Ether.
+
+DELIVERED FILES
